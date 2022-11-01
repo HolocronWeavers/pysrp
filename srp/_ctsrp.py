@@ -478,14 +478,21 @@ class Verifier (object):
         else:
             return (bn_to_bytes(self.s), bn_to_bytes(self.B))
 
-
-    def verify_session(self, user_M, bytes_A=None):
+    # returns session key on success, None if SRP-6a safety check fails.
+    # Only needed if user_M is encrypted with session key.
+    def derive_session_key(self, bytes_A=None):
         if bytes_A:
             self._set_A(bytes_A)
         if not hasattr(self, 'A'):
             raise ValueError("bytes_A must be provided through Verifier constructor or verify_session parameter.")
+        self._derive_H_AMK()
+        return self.K
+
+
+    def verify_session(self, user_M, bytes_A=None):
         if not self.safety_failed:
-            self._derive_H_AMK()
+            if not self.M:
+                self.derive_session_key(bytes_A)
             if user_M == self.M:
                 self._authenticated = True
                 return self.H_AMK
@@ -500,6 +507,7 @@ class Verifier (object):
 
         if BN_is_zero(self.tmp1):
             self.safety_failed = True
+
 
     def _derive_H_AMK(self):
         H_bn_bn(self.hash_class, self.u, self.A, self.B, width=BN_num_bytes(self.N))

@@ -175,6 +175,16 @@ user.
   
     Return (bytes_s, bytes_B) on success or (None, None) if
     authentication has failed.
+
+  .. method:: Verifier.derive_session_key( [user_A=None] )
+
+    Return session key on success or None if authentication has
+    failed. The session key should NOT be used to encrypt messages
+    until it has been verified via :func:`verify_session`. Only use
+    this method in the special case that user_M is sent to the server
+    encrypted with the session key and thus must be decrypted prior to
+    verifying session. Otherwise avoid this method and only use
+    :func:`verify_session`.
     
   .. method:: Verifier.verify_session( user_M[, user_A=None] )
   

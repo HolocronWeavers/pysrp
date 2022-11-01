@@ -88,8 +88,15 @@ class SRPTests( unittest.TestCase ):
         # Make sure Verifier generating B before receiving A will not change authentication.
         svr3     =  Verifier ( uname, _s, _v, None, hash_alg, ng_type, n_hex, g_hex, bytes_b, k_hex )
         self.assertEqual(bytes_b, svr3.get_ephemeral_secret())
+        # svr3.derive_session_key( A )
         HAMK3    =  svr3.verify_session( M, A )
         self.assertEqual(HAMK, HAMK3)
+
+        svr4     =  Verifier ( uname, _s, _v, None, hash_alg, ng_type, n_hex, g_hex, bytes_b, k_hex )
+        self.assertEqual(bytes_b, svr4.get_ephemeral_secret())
+        svr4.derive_session_key( A )
+        HAMK4    =  svr4.verify_session( M )
+        self.assertEqual(HAMK, HAMK4)
 
         # HAMK => client
         usr.verify_session( HAMK )
